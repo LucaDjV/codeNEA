@@ -1,0 +1,12 @@
+C:\Users\lucaD\source\repos\HaarCascadeLib\HaarCascadeLib\bin\Debug\net6.0-windows\HaarCascadeLib.deps.json
+C:\Users\lucaD\source\repos\HaarCascadeLib\HaarCascadeLib\bin\Debug\net6.0-windows\HaarCascadeLib.dll
+C:\Users\lucaD\source\repos\HaarCascadeLib\HaarCascadeLib\bin\Debug\net6.0-windows\HaarCascadeLib.pdb
+C:\Users\lucaD\source\repos\HaarCascadeLib\HaarCascadeLib\obj\Debug\net6.0-windows\HaarCascadeLib.csproj.AssemblyReference.cache
+C:\Users\lucaD\source\repos\HaarCascadeLib\HaarCascadeLib\obj\Debug\net6.0-windows\HaarCascadeLib.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\lucaD\source\repos\HaarCascadeLib\HaarCascadeLib\obj\Debug\net6.0-windows\HaarCascadeLib.AssemblyInfoInputs.cache
+C:\Users\lucaD\source\repos\HaarCascadeLib\HaarCascadeLib\obj\Debug\net6.0-windows\HaarCascadeLib.AssemblyInfo.cs
+C:\Users\lucaD\source\repos\HaarCascadeLib\HaarCascadeLib\obj\Debug\net6.0-windows\HaarCascadeLib.csproj.CoreCompileInputs.cache
+C:\Users\lucaD\source\repos\HaarCascadeLib\HaarCascadeLib\obj\Debug\net6.0-windows\HaarCascadeLib.dll
+C:\Users\lucaD\source\repos\HaarCascadeLib\HaarCascadeLib\obj\Debug\net6.0-windows\refint\HaarCascadeLib.dll
+C:\Users\lucaD\source\repos\HaarCascadeLib\HaarCascadeLib\obj\Debug\net6.0-windows\HaarCascadeLib.pdb
+C:\Users\lucaD\source\repos\HaarCascadeLib\HaarCascadeLib\obj\Debug\net6.0-windows\ref\HaarCascadeLib.dll
