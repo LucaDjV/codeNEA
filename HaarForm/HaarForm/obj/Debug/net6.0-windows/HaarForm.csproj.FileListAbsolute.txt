@@ -6,7 +6,6 @@ C:\Users\lucaD\source\repos\HaarForm\HaarForm\bin\Debug\net6.0-windows\HaarForm.
 C:\Users\lucaD\source\repos\HaarForm\HaarForm\bin\Debug\net6.0-windows\HaarCascadeLib.dll
 C:\Users\lucaD\source\repos\HaarForm\HaarForm\bin\Debug\net6.0-windows\HaarCascadeLib.pdb
 C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.csproj.AssemblyReference.cache
-C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.Form1.resources
 C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.csproj.GenerateResource.cache
 C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.GeneratedMSBuildEditorConfig.editorconfig
 C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.AssemblyInfoInputs.cache
@@ -18,3 +17,4 @@ C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\refint\Ha
 C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.pdb
 C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.genruntimeconfig.cache
 C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\ref\HaarForm.dll
+C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.taskQueue.resources

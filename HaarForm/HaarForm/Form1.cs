@@ -5,7 +5,7 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Windows.Forms;
 using System.IO;
 using HaarCascadeLib;
@@ -13,6 +13,132 @@ using HaarCascadeLib;
 
 namespace HaarForm
 {
+    //priority queue
+    //if is interrupt, insert at front, else insert at back
+    public class taskQueue
+    {
+        public static queueElement[] tQueue = new queueElement[100];
+        public static int size, FP, BP;
+
+
+        public taskQueue()
+        {
+            size = 0;
+            FP = 0;
+            BP = 0;
+        }
+
+        public void Enqueue(Task taskIn, bool interrupt)
+        {
+            if (interrupt)
+            {
+                if (size <= 100)
+                {
+                    if(FP == 0)
+                    {
+                        tQueue[99] = new queueElement(taskIn);
+                        FP = 99;
+                        size++;
+                    }
+                    else if (FP > BP)
+                    {
+                        FP--;
+                        tQueue[FP] = new queueElement(taskIn);
+                        size++;
+                    }
+                    else
+                    {
+                        FP++;
+                        tQueue[FP] = new queueElement(taskIn);
+                        size++;
+                    }
+                }
+                else
+                {
+                    throw new Exception("No more space in queue for task");
+                }
+            }
+            else
+            {
+                if(size <= 100)
+                {
+                    if(BP == 99)
+                    {
+                        BP = 0;
+                        tQueue[BP] = new queueElement(taskIn);
+                        size++;
+                    }
+                    else
+                    {
+                        BP++;
+                        tQueue[BP] = new queueElement(taskIn);
+                        size++;
+                    }
+                }
+                else
+                {
+                    throw new Exception("No more space in queue for task");
+                }
+            }
+        }
+
+        public static async void clearQueue()
+        {
+            int amtDequeued = 0;
+            Task[] inProgress = new Task[4];
+            while (size > 0)
+            {
+                if (FP == 99)
+                {
+                    inProgress[amtDequeued] = tQueue[FP].element;
+                    inProgress[amtDequeued].Start();
+                    amtDequeued++;
+                    FP = 0;
+                    size--;
+                }
+                else
+                {
+                    inProgress[amtDequeued] = tQueue[FP].element;
+                    inProgress[amtDequeued].Start();
+                    amtDequeued++;
+                    FP++;
+                    size--;
+                }
+                if(amtDequeued == 4)
+                {
+                    for(int i = 0; i < 4; i++)
+                    {
+                        await inProgress[i];
+                    }
+                }
+            }
+        }
+
+        public class queueElement
+        {
+            public Task element
+            {
+                get { return element; }
+                set
+                {
+                    element = value;
+                    if (taskQueue.size == 0)
+                    {
+                        Task t = new Task(() => taskQueue.clearQueue());
+                        t.Start();
+                    }
+            }
+            }
+
+            public queueElement(Task t)
+            {
+                element = t;
+            }
+        }
+
+    }
+
+    
     public partial class Form1 : Form
     {
         public Image[] Images;
@@ -20,9 +146,14 @@ namespace HaarForm
         double[][,] testIntImgs;
         double[][,] integralImages;
         int idx = -1;
-        public imageProcessorClass methods;
+        public static imageProcessorClass methods;
         bool[] isFace;
-        HaarCascadeV2 haarCascade;
+        public static HaarCascadeV2 haarCascade;
+        public static int newest;
+        public static bool trained;
+
+
+        public static taskQueue tasks = new taskQueue();
 
         /// <summary>
         /// Something wrong with gini coefficients- check finishedFeatures[0]
@@ -34,6 +165,20 @@ namespace HaarForm
             methods = new imageProcessorClass();
             List<Bitmap> images = new List<Bitmap>();
             List<bool> faces = new List<bool>();
+            newest = new int();
+            trained = false;
+            using(StreamReader reader = new StreamReader("saves\\state.txt"))
+            {
+                string line = reader.ReadLine();
+                if(line == null || line == "")
+                {
+                    newest = 2;
+                }
+                else
+                {
+                    newest = int.Parse(line);
+                }
+            }
             foreach (string path in Directory.EnumerateFiles("C:\\Users\\lucaD\\OneDrive\\Pictures\\data\\TrainingImages"))
             {
                 Bitmap image = new Bitmap(path);
@@ -72,42 +217,87 @@ namespace HaarForm
 
         private void startProcess_Click_1(object sender, EventArgs e)
         {
-            //convert all images to integral images
-            for (int i = 0; i < Images.Length; i++)
+            if (loadSave.Checked)
             {
-                methods.convertToIntImg(Images[i], ref integralImages, i);
-            }
-
-            //instantiate cascade
-            HaarCascadeV2 cascade = new HaarCascadeV2(isFace, methods);
-            haarCascade = cascade;
-
-            //another function to make it easy to add async later
-            startTraining();
-
-            Console.WriteLine("training finished");
-            Console.WriteLine("start testing?");
-            string choice = Console.ReadLine();
-            if (choice == "yes")
-            {
-                bool[] classification = testCase();
-
-                for (int i = 0; i < classification.Length; i++)
+                bool success = false;
+                if (saveFile.Text == "1")
                 {
-                    if (classification[i])
+                    success = LoadSaveFile(1);
+                    success = true;
+                }
+                else if (saveFile.Text == "2")
+                {
+                    success = LoadSaveFile(2);
+                    success = true;
+                }
+                else
+                {
+                    success = LoadSaveFile(true);
+                    success = true;
+                }
+
+                if (success)
+                {
+                    richTextBox1.Text = "successfully loaded save" + saveFile.Text;
+                    saveFile.Text = "";
+                    saveFile.Visible = false;
+                    trained = true;
+                }
+                else
+                {
+                    if(saveFile.Text == "1" || saveFile.Text == "2")
                     {
-                        Console.WriteLine("image " + i + 1 + " is a face");
+                        richTextBox1.Text = "save file " + saveFile.Text + " not valid";
                     }
                     else
                     {
-                        Console.WriteLine("image " + i + 1 + " is not a face");
+                        richTextBox1.Text = "no valid save files";
                     }
+                    loadSave.Checked = false;
+                    saveFile.Text = "";
+                    saveFile.Visible = false;
                 }
             }
             else
             {
+                //convert all images to integral images
+                for (int i = 0; i < Images.Length; i++)
+                {
+                    methods.convertToIntImg(Images[i], ref integralImages, i);
+                }
 
+                //instantiate cascade
+                HaarCascadeV2 cascade = new HaarCascadeV2(isFace, methods);
+                haarCascade = cascade;
+
+                //another function to make it easy to add async later
+                Task train = new Task(() => startTraining());
+                tasks.Enqueue(train, false);
+
+                SaveState();
+
+                trained = true;
+                Console.WriteLine("training finished");
+                Console.WriteLine("start testing?");
+                string choice = Console.ReadLine();
+                if (choice == "yes")
+                {
+                    bool[] classification = testCase();
+
+                    for (int i = 0; i < classification.Length; i++)
+                    {
+                        if (classification[i])
+                        {
+                            Console.WriteLine("image " + i + 1 + " is a face");
+                        }
+                        else
+                        {
+                            Console.WriteLine("image " + i + 1 + " is not a face");
+                        }
+                    }
+                }
             }
+            
         }
 
         private bool[] testCase()
@@ -131,14 +321,72 @@ namespace HaarForm
 
         private void Loader_Click_1(object sender, EventArgs e)
         {
+            Task t = new Task(() => loading());
+            tasks.Enqueue(t, true);
+        }
+
+        private void loading()
+        {
             if (idx < Images.Length - 1)
             {
                 idx++;
                 Bitmap newImg = ProcessImg((Bitmap)(Images[idx]));
                 pictureBox.Image = newImg;
                 pictureBox.Show();
+                richTextBox1.Text = "image: " + idx + " is showing";
             }
-            richTextBox1.Text = "image: " + idx + " is showing";
+            if (trained && pictureBox.Image.Width >= 46)
+            {
+                double[][,] intImg = new double[1][,];
+
+                methods.convertToIntImg(pictureBox.Image, ref intImg, 0);
+
+                if (intImg.GetLength(0) == 46 && intImg.GetLength(1) == 46)
+                {
+                    HaarCascadeV2.TestWindow window = new HaarCascadeV2.TestWindow(intImg[0]);
+                    if (window.classifyWindow())
+                    {
+                        richTextBox1.Text = "image " + idx + " contains a face";
+                    }
+                    else
+                    {
+                        richTextBox1.Text = "image " + idx + " does not contain a face";
+                    }
+                }
+                else
+                {
+                    List<HaarCascadeV2.TestWindow> windowList = new List<HaarCascadeV2.TestWindow>();
+                    List<bool> classifications = new List<bool>();
+
+                    for (int i = 0; i < intImg.GetLength(0) - 46; i++)
+                    {
+                        for (int j = 0; j < intImg.GetLength(1) - 46; j++)
+                        {
+                            double[,] currwindow = new double[46, 46];
+                            for (int k = 0; k < 46; k++)
+                            {
+                                for (int l = 0; l < 46; l++)
+                                {
+                                    currwindow[k, l] = intImg[0][k, l];
+                                    HaarCascadeV2.TestWindow window = new HaarCascadeV2.TestWindow(intImg[0]);
+                                    windowList.Add(window);
+                                    classifications.Add(window.classifyWindow());
+                                }
+                            }
+                        }
+                    }
+
+
+                    if (classifications.Contains<bool>(true))
+                    {
+                        richTextBox1.Text = "image " + idx + " contains a face";
+                    }
+                    else
+                    {
+                        richTextBox1.Text = "image " + idx + " does not contain a face";
+                    }
+                }
+            }
         }
 
         private void Back_Click_1(object sender, EventArgs e)
@@ -150,49 +398,312 @@ namespace HaarForm
                 pictureBox.Image = newImg;
                 pictureBox.Show();
             }
+            if (trained && pictureBox.Image.Width >= 46)
+            {
+                double[][,] intImg = new double[1][,];
+
+                methods.convertToIntImg(pictureBox.Image, ref intImg, 0);
+
+                if (intImg.GetLength(0) == 46 && intImg.GetLength(1) == 46)
+                {
+                    HaarCascadeV2.TestWindow window = new HaarCascadeV2.TestWindow(intImg[0]);
+                    if (window.classifyWindow())
+                    {
+                        richTextBox1.Text = "image " + idx + " contains a face";
+                    }
+                    else
+                    {
+                        richTextBox1.Text = "image " + idx + " does not contain a face";
+                    }
+                }
+                else
+                {
+                    List<HaarCascadeV2.TestWindow> windowList = new List<HaarCascadeV2.TestWindow>();
+                    List<bool> classifications = new List<bool>();
+
+                    for (int i = 0; i < intImg.GetLength(0) - 46; i++)
+                    {
+                        for (int j = 0; j < intImg.GetLength(1) - 46; j++)
+                        {
+                            double[,] currwindow = new double[46, 46];
+                            for (int k = 0; k < 46; k++)
+                            {
+                                for (int l = 0; l < 46; l++)
+                                {
+                                    currwindow[k, l] = intImg[0][k, l];
+                                    HaarCascadeV2.TestWindow window = new HaarCascadeV2.TestWindow(intImg[0]);
+                                    windowList.Add(window);
+                                    classifications.Add(window.classifyWindow());
+                                }
+                            }
+                        }
+                    }
+
+
+                    if (classifications.Contains<bool>(true))
+                    {
+                        richTextBox1.Text = "image " + idx + " contains a face";
+                    }
+                    else
+                    {
+                        richTextBox1.Text = "image " + idx + " does not contain a face";
+                    }
+                }
+            }
+        }
+
+        public static void SaveState()
+        {
+            string path = "saves\\save";
+            if(newest == 1)
+            {
+                path += "2.txt";
+                newest = 2;
+
+                File.WriteAllText("saves\\state.txt", "2");
+
+                string[] temp = File.ReadAllLines(path);
+                using(StreamWriter writer = new StreamWriter("saves\\save1.txt", false))
+                {
+                    for(int i = 0; i < temp.Length; i++)
+                    {
+                        writer.WriteLine(temp[i]);
+                    }
+                }
+            }
+            else
+            {
+                path += "1.txt";
+                newest = 1;
+
+                File.WriteAllText("saves\\state.txt", "1");
+
+                string[] temp = File.ReadAllLines(path);
+                using (StreamWriter writer = new StreamWriter("saves\\save2.txt", false))
+                {
+                    for (int i = 0; i < temp.Length; i++)
+                    {
+                        writer.WriteLine(temp[i]);
+                    }
+                }
+            }
+
+            using (StreamWriter writer = new StreamWriter(path, false))
+            {
+                writer.WriteLine("1");
+                for(int i = 0; i < HaarCascadeV2.finishedFeatures.Length; i++)
+                {
+                    writer.WriteLine(HaarCascadeV2.finishedFeatures[i].threshold);
+                    writer.WriteLine(HaarCascadeV2.finishedFeatures[i].vote);
+
+                }
+            }
+        }
+
+        public static bool LoadSaveFile(int save)
+        {
+            bool success = true;
+            string path = "";
+            bool valid = false;
+            if (save == 1)
+            {
+                path = "saves\\save1.txt";
+                valid = true;
+            }
+            else if (save == 2)
+            {
+                path = "saves\\save2.txt";
+                valid = true;
+            }
+            else
+            {
+                Console.WriteLine("save" + save + " is not a valid save file");
+                success = false;
+            }
+
+            if (valid)
+            {
+                HaarCascadeV2 cascade = new HaarCascadeV2(methods);
+                haarCascade = cascade;
+                using (StreamReader reader = new StreamReader(path))
+                {
+                    string head = "";
+                    head += reader.ReadLine();
+                    if (head == "1")
+                    {
+                        for (int i = 0; i < HaarCascadeV2.finishedFeatures.Length; i++)
+                        {
+                            string curr = "";
+                            curr += reader.ReadLine();
+                            double threshold = double.Parse(curr);
+                            HaarCascadeV2.UpdateThreshold(threshold, i);
+                            curr = "";
+                            curr += reader.ReadLine();
+                            decimal vote = decimal.Parse(curr);
+                            HaarCascadeV2.UpdateVote(vote, i);
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("save" + save + " is not a valid save file");
+                        success = false;
+                    }
+                }
+            }
+
+            return success;
+        }
+
+        public static bool LoadSaveFile(bool auto)
+        {
+            bool success = true;
+            if (auto)
+            {
+                string path = "saves\\save";
+
+                if(newest == 1)
+                {
+                    path += "1.txt";
+                }
+                else
+                {
+                    path += "2.txt";
+                }
+
+                using (StreamReader reader = new StreamReader(path))
+                {
+                    string head = "";
+                    head += reader.ReadLine();
+                    if (head == "1")
+                    {
+                        for (int i = 0; i < HaarCascadeV2.finishedFeatures.Length; i++)
+                        {
+                            string curr = "";
+                            curr += reader.ReadLine();
+                            double threshold = double.Parse(curr);
+                            HaarCascadeV2.UpdateThreshold(threshold, i);
+                            curr = "";
+                            curr += reader.ReadLine();
+                            decimal vote = decimal.Parse(curr);
+                            HaarCascadeV2.UpdateVote(vote, i);
+                        }
+                    }
+                    else
+                    {
+                        success = false;
+                        Console.WriteLine("no valid save files");
+                    }
+
+                }
+                /*string path = "saves\\save2.txt";
+                bool save2 = true;
+                bool load1 = false;
+                using (StreamReader reader = new StreamReader(path))
+                {
+                    string head = "";
+                    head += reader.ReadLine();
+                    if (head == "1")
+                    {
+                        for (int i = 0; i < HaarCascadeV2.finishedFeatures.Length; i++)
+                        {
+                            string curr = "";
+                            curr += reader.ReadLine();
+                            int threshold = int.Parse(curr);
+                            HaarCascadeV2.finishedFeatures[i].threshold = threshold;
+                            curr = "";
+                            curr += reader.ReadLine();
+                            int vote = int.Parse(curr);
+                            HaarCascadeV2.finishedFeatures[i].vote = vote;
+                        }
+                    }
+                    else
+                    {
+                        save2 = false;
+                        load1 = true;
+                    }
+
+                }
+                if (!save2 || load1)
+                {
+                    path = "saves\\save1.txt";
+                    using (StreamReader reader = new StreamReader(path))
+                    {
+                        string head = "";
+                        head += reader.ReadLine();
+                        if (head == "1")
+                        {
+                            for (int i = 0; i < HaarCascadeV2.finishedFeatures.Length; i++)
+                            {
+                                string curr = "";
+                                curr += reader.ReadLine();
+                                int threshold = int.Parse(curr);
+                                HaarCascadeV2.finishedFeatures[i].threshold = threshold;
+                                curr = "";
+                                curr += reader.ReadLine();
+                                int vote = int.Parse(curr);
+                                HaarCascadeV2.finishedFeatures[i].vote = vote;
+                            }
+                        }
+                        else
+                        {
+                            Console.WriteLine("no valid saves");
+                            success = false;
+                        }
+                    }
+                }*/
+            }
+            else
+            {
+                success = false;
+            }
+
+
+            return success;
         }
 
         private Bitmap ProcessImg(Bitmap imageIn)
         {
             Bitmap imageOut = imageIn;
-            methods.imageToGrayscale(imageIn);
-            if (imageIn.Width > pictureBox.Width)
+            if (checkBox.Checked)
             {
-                imageOut = methods.ScaleDown(imageIn, pictureBox);
+                methods.imageToGrayscale(imageIn);
                 if (imageIn.Width > pictureBox.Width)
                 {
-                    imageOut = methods.CropHorz(imageIn, pictureBox);
+                    imageOut = methods.ScaleDown(imageIn, pictureBox);
+                    if (imageIn.Width > pictureBox.Width)
+                    {
+                        imageOut = methods.CropHorz(imageIn, pictureBox);
+                    }
+                    if (imageIn.Height > pictureBox.Height)
+                    {
+                        imageOut = methods.CropVert(imageIn, pictureBox);
+                    }
                 }
-                if (imageIn.Height > pictureBox.Height)
+                else if (imageIn.Width < pictureBox.Width)
+                {
+                    imageOut = methods.BicubicScaleUp(imageIn, pictureBox, richTextBox1);
+                    if (imageIn.Width > pictureBox.Width)
+                    {
+                        imageOut = methods.CropHorz(imageIn, pictureBox);
+                    }
+                    if (imageIn.Height > pictureBox.Height)
+                    {
+                        imageOut = methods.CropVert(imageIn, pictureBox);
+                    }
+                }
+                else if (imageIn.Height > pictureBox.Height)
                 {
                     imageOut = methods.CropVert(imageIn, pictureBox);
                 }
-            }
-            else if (imageIn.Width < pictureBox.Width)
-            {
-                imageOut = methods.BicubicScaleUpDecimal(imageIn, pictureBox, richTextBox1);
-                if (imageIn.Width > pictureBox.Width)
-                {
-                    imageOut = methods.CropHorz(imageIn, pictureBox);
-                }
-                if (imageIn.Height > pictureBox.Height)
-                {
-                    imageOut = methods.CropVert(imageIn, pictureBox);
-                }
-            }
-            else if (imageIn.Height > pictureBox.Height)
-            {
-                imageOut = methods.CropVert(imageIn, pictureBox);
-            }
-            else { imageOut = imageIn; }
+                else { imageOut = imageIn; }
 
+            }
             return imageOut;
         }
 
         private void ConvToInt_Click_1(object sender, EventArgs e)
         {
             methods.convertToIntImg(pictureBox, ref richTextBox1, ref integralImages, idx);
-
         }
 
         public class HaarCascadeV2
@@ -206,6 +717,7 @@ namespace HaarForm
             {
                 //just a blank overload so i can instantiate it in the Form1 constructor
             }
+
             public HaarCascadeV2(bool[] isFace, imageProcessorClass methods)
             {
                 features = new HaarFeatureV2[amtFeatures];
@@ -230,6 +742,26 @@ namespace HaarForm
 
 
                 finishedFeatures = new HaarFeatureV2[amtFeatures];
+            }
+
+            public HaarCascadeV2(imageProcessorClass methods)
+            {
+                finishedFeatures = new HaarFeatureV2[amtFeatures];
+                finishedFeatures[0] = new Type1(2, 9, 9, 9, 2, 23, 9, 23, true); //        rightear
+                
+                finishedFeatures[1] = new Type2(10, 9, 35, 9, 10, 17, 35, 17, true); //     eyes
+                finishedFeatures[11] = new Type2(10, 7, 35, 7, 10, 15, 35, 15, true); //     eyes2
+                finishedFeatures[12] = new Type2(10, 5, 35, 5, 10, 13, 35, 13, true); //     eyes
+                
+                finishedFeatures[2] = new Type1(36, 9, 43, 9, 36, 23, 43, 23, true); //     leftear
+                finishedFeatures[3] = new Type1(17, 18, 24, 18, 17, 25, 24, 25, false); //  leftSectNose
+                finishedFeatures[4] = new Type1(21, 18, 28, 18, 21, 25, 28, 25, true); //   rightSectNose
+                finishedFeatures[5] = new Type2(14, 28, 31, 29, 14, 36, 31, 36, false); //  mouth
+                finishedFeatures[6] = new Type2(10, 19, 16, 19, 10, 24, 16, 24, true);  //  cheekboneLeft
+                finishedFeatures[7] = new Type2(29, 19, 35, 19, 29, 24, 35, 24, true);  //  cheekboneright
+                finishedFeatures[8] = new Type2(15, 37, 30, 37, 15, 44, 30, 44, true);  //  chin
+                finishedFeatures[9] = new Type1(6, 25, 11, 25, 6, 30, 11, 30, false); //    leftEdge
+                finishedFeatures[10] = new Type1(34, 25, 39, 25, 34, 30, 39, 30, true); //    rightEdge
             }
 
             public bool[] Test(double[][,] intImgs)
@@ -282,6 +814,16 @@ namespace HaarForm
 
 
                 return classifications;
+            }
+
+            public static void UpdateThreshold(double threshold, int i)
+            {
+                finishedFeatures[i].threshold = threshold;
+            }
+
+            public static void UpdateVote(decimal vote, int i)
+            {
+                finishedFeatures[i].vote = vote;
             }
 
             public int CreateStump(int amtWindows, int[] wrongPerFeature, ref List<int> finishedStumps)
@@ -982,6 +1524,27 @@ namespace HaarForm
                     return blackOnBottom;
                 }
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            Bitmap temp = (Bitmap)pictureBox.Image;
+            methods.imageToGrayscale(temp);
+            pictureBox.Image = temp;
+        }
+
+        private void checkBox1_CheckedChanged(object sender, EventArgs e)
+        {
+            if (loadSave.Checked)
+            {
+                saveFile.Visible = true;
+                richTextBox1.Text = "enter save file number in adjacent box.";
+            }
+        }
+
+        private void richTextBox2_TextChanged(object sender, EventArgs e)
+        {
+
         }
     }
 }

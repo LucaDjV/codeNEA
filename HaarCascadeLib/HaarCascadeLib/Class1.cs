@@ -10,9 +10,11 @@ namespace HaarCascadeLib
             {
                 for (int j = 0; j < imageIn.Height; j++)
                 {
+                    //works out the average colour and then replaces the red green and
+                    //blue values with this so that there is no colour, only intensity
                     Color col = imageIn.GetPixel(i, j);
-                    int avg = (col.R + col.G + col.B) / 3;
-                    imageIn.SetPixel(i, j, Color.FromArgb(col.A, avg, avg, avg));
+                    int avgColour = (col.R + col.G + col.B) / 3;
+                    imageIn.SetPixel(i, j, Color.FromArgb(col.A, avgColour, avgColour, avgColour));
                 }
             }
         }
@@ -53,27 +55,63 @@ namespace HaarCascadeLib
             {
                 for (int j = 0; j < imageOut.Height; j++)
                 {
-                    int localIdxI = sf - i % sf;
-                    int localIdxJ = sf - j % sf;
-                    if ((int)((Math.Floor((double)(i / sf))) + 1) < imageIn.Width && (int)((Math.Floor((double)(j / sf))) + 1) < imageIn.Height)
+                    if(i % sf == 0 && j % sf == 0)
                     {
-                        if (localIdxI >= sf / 2)
+                        int newColour = imageIn.GetPixel(i / sf, j / sf).R;
+                        imageOut.SetPixel(i, j, Color.FromArgb(100, newColour, newColour, newColour));
+                    }
+                    else
+                    {
+                        //finds the index of the pixel in the original image
+                        int localIdxI = sf - i % sf;
+                        int localIdxJ = sf - j % sf;
+                        if ((int)((Math.Floor((double)(i / sf))) + 1) < imageIn.Width && (int)((Math.Floor((double)(j / sf))) + 1) < imageIn.Height)
+                        {
+                            if (localIdxI >= sf / 2)
+                            {
+                                if (localIdxJ >= sf / 2)
+                                {
+                                    int newColour = imageIn.GetPixel((int)((Math.Floor((double)(i / sf))) + 1), (int)((Math.Floor((double)(j / sf))) + 1)).R;
+                                    imageOut.SetPixel(i, j, Color.FromArgb(100, newColour, newColour, newColour));
+                                }
+                                else
+                                {
+                                    int newColour = imageIn.GetPixel((int)((Math.Floor((double)(i / sf))) + 1), (int)(Math.Floor((double)(j / sf)))).R;
+                                    imageOut.SetPixel(i, j, Color.FromArgb(100, newColour, newColour, newColour));
+                                }
+                            }
+                        }
+                        else if((int)((Math.Floor((double)(i / sf))) + 1) >= imageIn.Width && (int)((Math.Floor((double)(j / sf))) + 1) < imageIn.Height)
                         {
                             if (localIdxJ >= sf / 2)
                             {
-                                int newColour = imageIn.GetPixel((int)((Math.Floor((double)(i / sf))) + 1), (int)((Math.Floor((double)(j / sf))) + 1)).R;
+                                int newColour = imageIn.GetPixel((int)((Math.Floor((double)(i / sf)))), (int)((Math.Floor((double)(j / sf))) + 1)).R;
                                 imageOut.SetPixel(i, j, Color.FromArgb(100, newColour, newColour, newColour));
+                            }
+                        } 
+                        if(localIdxI < sf / 2)
+                        {
+                            if (localIdxJ < sf / 2)
+                            {
+                                int newColour = imageIn.GetPixel((int)((Math.Floor((double)(i / sf)))), (int)((Math.Floor((double)(j / sf))))).R;
+                                imageOut.SetPixel(i, j, Color.FromArgb(100, newColour, newColour, newColour));
+                            }
+                            else
+                            {
+                                if ((int)((Math.Floor((double)(j / sf))) + 1) < imageIn.Height)
+                                {
+                                    int newColour = imageIn.GetPixel((int)((Math.Floor((double)(i / sf)))), (int)((Math.Floor((double)(j / sf))) + 1)).R;
+                                    imageOut.SetPixel(i, j, Color.FromArgb(100, newColour, newColour, newColour));
+                                }
+                                else
+                                {
+                                    int newColour = imageIn.GetPixel((int)((Math.Floor((double)(i / sf)))), (int)((Math.Floor((double)(j / sf))))).R;
+                                    imageOut.SetPixel(i, j, Color.FromArgb(100, newColour, newColour, newColour));
+                                }
                             }
                         }
                     }
-                    if (localIdxI < sf / 2)
-                    {
-                        if (localIdxJ < sf / 2)
-                        {
-                            int newColour = imageIn.GetPixel((int)((Math.Floor((double)(i / sf)))), (int)((Math.Floor((double)(j / sf))))).R;
-                            imageOut.SetPixel(i, j, Color.FromArgb(50, newColour, newColour, newColour));
-                        }
-                    }
+                    
                 }
             }
             return imageOut;
@@ -127,6 +165,11 @@ namespace HaarCascadeLib
                             {
                                 isCubic = true;
                                 coefX = GetCubicBetweenPoints(i, imageIn.GetPixel(i / sf, imageIn.Height - (k) - 1).R, i + 1, imageIn.GetPixel((i / sf) + 1, imageIn.Height - (k) - 1).R, colourGradX[i, imageIn.Height - (k) - 1], colourGradX[i + 1, imageIn.Height - (k) - 1]);
+                                if (coefX.Contains<double>(double.NaN))
+                                {
+                                    isCubic = false;
+                                    LastVal = imageIn.GetPixel(i / sf, imageIn.Height - (k) - 1).R;
+                                }
                             }
                         }
                         if (isCubic)
@@ -158,6 +201,11 @@ namespace HaarCascadeLib
                             {
                                 isCubic = true;
                                 coefY = GetCubicBetweenPoints(j, imageIn.GetPixel((imageIn.Width - 1 - k) / sf, j / sf).R, j + 1, imageIn.GetPixel((imageIn.Width - 1 - (k)) / sf, (j / sf) + 1).R, colourGradY[imageIn.Width - (k) - 1, j / sf], colourGradY[imageIn.Width - (k) - 1, (j / sf) + 1]);
+                                if (coefX.Contains<double>(double.NaN))
+                                {
+                                    isCubic = false;
+                                    LastVal = imageIn.GetPixel(imageIn.Width - (k) - 1 / sf, j / sf).R;
+                                }
                             }
                         }
                         if (isCubic)
@@ -191,6 +239,11 @@ namespace HaarCascadeLib
                             {
                                 isCubicY = true;
                                 coefY = GetCubicBetweenPoints(j / sf, imageIn.GetPixel(i / sf, j / sf).R, (j / sf) + 1, imageIn.GetPixel(i / sf, j / sf + 1).R, colourGradX[i / sf, j / sf], colourGradX[i / sf, j / sf + 1]);
+                                if (coefX.Contains<double>(double.NaN))
+                                {
+                                    isCubic = false;
+                                    lastY = imageIn.GetPixel(i / sf, j / sf).R;
+                                }
                             }
                         }
 
@@ -223,7 +276,11 @@ namespace HaarCascadeLib
                             {
                                 isCubicX = true;
                                 coefX = GetCubicBetweenPoints(i / sf, imageIn.GetPixel(i / sf, j / sf).R, (i / sf) + 1, imageIn.GetPixel(i / sf + 1, j / sf).R, colourGradX[i / sf, j / sf], colourGradX[i / sf + 1, j / sf]);
-
+                                if (coefX.Contains<double>(double.NaN))
+                                {
+                                    isCubic = false;
+                                    lastX = imageIn.GetPixel(i / sf, j / sf).R;
+                                }
                             }
                             if (isCubicX)
                             {
@@ -323,10 +380,10 @@ namespace HaarCascadeLib
 
             double[,] coMat =
             {
-                {Math.Pow(x1, 3), 1, x1, Math.Pow(x1, 2) },
-                {Math.Pow(x2, 3), 1, x2, Math.Pow(x2, 2)},
-                {Math.Pow(x1, 2) * 3, 0, 1, x1 * 2},
-                {Math.Pow(x2, 2) * 3, 0, 1, x2 * 2},
+                {Math.Pow(x1, 3),        1,    x1,    Math.Pow(x1, 2) },
+                {Math.Pow(x2, 3),        1,    x2,    Math.Pow(x2, 2)},
+                {Math.Pow(x1, 2) * 3,    0,    1,     x1 * 2},
+                {Math.Pow(x2, 2) * 3,    0,    1,     x2 * 2},
             };
             double[] rhs = { y1, y2, grad1, grad2 };
 
@@ -371,6 +428,179 @@ namespace HaarCascadeLib
                 }
                 res[i] = rhs[i] / CoMat[i, i];
             }
+            return res;
+        }
+
+        public static double[] RREFEliminator(double[,] CoMat, double[] rhs)
+        {
+            //store the length - 1 to reduce computation
+            int n = rhs.Length - 1;
+
+            //make a results array with the same length as the right hand side of the equation
+            //this will store the values of the unknowns in order
+            double[] res = new double[n + 1];
+
+            /*//reduce all equations to be in row-echelon form
+            for (int i = 0; i <= n; i++)
+            {
+                for (int j = n; j > i; j--)
+                {
+                    double factor = CoMat[j, i] / CoMat[i, i];
+
+                    for (int k = 0; k <= n; k++)
+                    {
+                        CoMat[j, k] -= CoMat[i, k] * factor;
+                    }
+                    rhs[j] -= rhs[i] * factor;
+                }
+            }*/
+
+            //v2
+            for (int i = 0; i <= n; i++)
+            {
+                int row = i;
+                bool validRow = false;
+                int col = 0;
+                for (int j = 0; j < CoMat.GetLength(1); j++)
+                {
+                    if (CoMat[row, j] != 0)
+                    {
+                        if (!validRow)
+                        {
+                            col = j;
+                        }
+                        validRow = true;
+                    }
+                }
+                if (validRow && row != n)
+                {
+                    for (int j = i + 1; j <= n; j++)
+                    {
+                        double coef = CoMat[j, col] / CoMat[row, col];
+                        for (int k = 0; k < CoMat.GetLength(1); k++)
+                        {
+                            CoMat[j, k] -= coef * CoMat[row, k];
+                        }
+                        rhs[j] -= coef * rhs[row];
+                    }
+                }
+            }
+
+            //make row arranger with spearmann rank type things
+            int[] ranks = new int[CoMat.GetLength(0)];
+            for (int i = 0; i <= n; i++)
+            {
+                bool validRow = false;
+                int col = 0;
+                for (int j = 0; j < CoMat.GetLength(1); j++)
+                {
+                    if (CoMat[i, j] != 0)
+                    {
+                        if (!validRow)
+                        {
+                            col = j;
+                            ranks[i] = col;
+                        }
+                        validRow = true;
+                    }
+                }
+            }
+
+            double[,] temp = new double[CoMat.GetLength(0), CoMat.GetLength(0)];
+            double[] tempRhs = new double[rhs.Length];
+
+
+            for (int i = 0; i < temp.GetLength(0); i++)
+            {
+                for (int j = 0; j < temp.GetLength(1); j++)
+                {
+                    temp[ranks[i], j] = CoMat[i, j];
+                }
+                tempRhs[ranks[i]] = rhs[i];
+            }
+
+            CoMat = temp;
+            rhs = tempRhs;
+
+            //rref
+            for (int i = 0; i <= n; i++)
+            {
+                bool validRow = false;
+                int col = 0;
+                for (int j = 0; j < CoMat.GetLength(1); j++)
+                {
+                    if (CoMat[i, j] != 0)
+                    {
+                        if (!validRow)
+                        {
+                            col = j;
+                        }
+                        validRow = true;
+                    }
+
+                }
+                double pivot = CoMat[i, col];
+                for (int j = col; j < CoMat.GetLength(1); j++)
+                {
+                    CoMat[i, j] /= pivot;
+                }
+                rhs[i] /= pivot;
+            }
+            for (int i = n; i >= 0; i--)
+            {
+                int row = i;
+                bool validRow = false;
+                int col = 0;
+                for (int j = 0; j < CoMat.GetLength(1); j++)
+                {
+                    if (CoMat[row, j] != 0)
+                    {
+                        if (!validRow)
+                        {
+                            col = j;
+                        }
+                        validRow = true;
+                    }
+                }
+                if (validRow)
+                {
+
+                    for (int j = 0; j < row; j++)
+                    {
+                        double coef = CoMat[j, col] / CoMat[row, col];
+                        for (int k = 0; k < CoMat.GetLength(1); k++)
+                        {
+                            CoMat[j, k] -= coef * CoMat[row, k];
+                        }
+                        rhs[j] -= coef * rhs[row];
+                    }
+                }
+            }
+
+            //solves
+            for (int i = n; i >= 0; i--)
+            {
+                bool found = false;
+                for (int j = 0; j < CoMat.GetLength(1); j++)
+                {
+                    if (CoMat[i, j] != 0 && !found)
+                    {
+                        res[i] = rhs[i] / CoMat[i, j];
+                        found = true;
+                    }
+                }
+            }
+            /*//we can immediately find the value of the last result
+            res[n] = rhs[n] / CoMat[n, n];
+            for (int i = n - 1; i >= 0; i--)
+            {
+                for (int j = i + 1; j <= n; j++)
+                {
+                    // i didnt scale the rows down to 1s so this handles that by multiplying by the coefficients
+                    rhs[i] -= res[j] * CoMat[i, j];
+                }
+                res[i] = rhs[i] / CoMat[i, i];
+            }*/
             return res;
         }
 
@@ -630,6 +860,7 @@ namespace HaarCascadeLib
             // cubic is res[0]x^3 + res[3]x^2 + res[2]x + res[1]
             return res;
         }
+
         /*private static decimal[] EliminatorV2Decimal(decimal[,] CoMat, decimal[] rhs)
         {
             //make a results array with the same length as the right hand side of the equation
@@ -662,6 +893,7 @@ namespace HaarCascadeLib
 
             }
         }*/
+
         private static decimal[] EliminatorDecimal(decimal[,] CoMat, decimal[] rhs)
         {
             //store the length - 1 to reduce computation
@@ -734,6 +966,7 @@ namespace HaarCascadeLib
             }
             return res;
         }
+
         private static decimal[,] SwapRows(int i, int j, decimal[,] CoMat, ref decimal[] res)
         {
             for(int k = 0; k < CoMat.GetLength(0); k++)
