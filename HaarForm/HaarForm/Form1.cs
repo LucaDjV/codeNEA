@@ -17,7 +17,7 @@ namespace HaarForm
     //if is interrupt, insert at front, else insert at back
     public class taskQueue
     {
-        public static queueElement[] tQueue = new queueElement[100];
+        public static Task[] tQueue = new Task[100];
         public static int size, FP, BP;
 
 
@@ -28,6 +28,14 @@ namespace HaarForm
             BP = 0;
         }
 
+        public void CheckTaskQueue()
+        {
+            if(tQueue.Length == 1)
+            {
+                clearQueue();
+            }
+        }
+
         public void Enqueue(Task taskIn, bool interrupt)
         {
             if (interrupt)
@@ -36,20 +44,20 @@ namespace HaarForm
                 {
                     if(FP == 0)
                     {
-                        tQueue[99] = new queueElement(taskIn);
+                        tQueue[99] = taskIn;
                         FP = 99;
                         size++;
                     }
                     else if (FP > BP)
                     {
                         FP--;
-                        tQueue[FP] = new queueElement(taskIn);
+                        tQueue[FP] = taskIn;
                         size++;
                     }
                     else
                     {
                         FP++;
-                        tQueue[FP] = new queueElement(taskIn);
+                        tQueue[FP] = taskIn;
                         size++;
                     }
                 }
@@ -65,13 +73,13 @@ namespace HaarForm
                     if(BP == 99)
                     {
                         BP = 0;
-                        tQueue[BP] = new queueElement(taskIn);
+                        tQueue[BP] = taskIn;
                         size++;
                     }
                     else
                     {
                         BP++;
-                        tQueue[BP] = new queueElement(taskIn);
+                        tQueue[BP] = taskIn;
                         size++;
                     }
                 }
@@ -90,7 +98,7 @@ namespace HaarForm
             {
                 if (FP == 99)
                 {
-                    inProgress[amtDequeued] = tQueue[FP].element;
+                    inProgress[amtDequeued] = tQueue[FP];
                     inProgress[amtDequeued].Start();
                     amtDequeued++;
                     FP = 0;
@@ -98,44 +106,21 @@ namespace HaarForm
                 }
                 else
                 {
-                    inProgress[amtDequeued] = tQueue[FP].element;
+                    inProgress[amtDequeued] = tQueue[FP];
                     inProgress[amtDequeued].Start();
                     amtDequeued++;
                     FP++;
                     size--;
                 }
-                if(amtDequeued == 4)
+                if(amtDequeued >= 2)
                 {
-                    for(int i = 0; i < 4; i++)
+                    for(int i = 0; i < amtDequeued; i++)
                     {
                         await inProgress[i];
                     }
                 }
             }
         }
-
-        public class queueElement
-        {
-            public Task element
-            {
-                get { return element; }
-                set
-                {
-                    element = value;
-                    if (taskQueue.size == 0)
-                    {
-                        Task t = new Task(() => taskQueue.clearQueue());
-                        t.Start();
-                    }
-            }
-            }
-
-            public queueElement(Task t)
-            {
-                element = t;
-            }
-        }
-
     }
 
     
@@ -323,6 +308,7 @@ namespace HaarForm
         {
             Task t = new Task(() => loading());
             tasks.Enqueue(t, true);
+            tasks.CheckTaskQueue();
         }
 
         private void loading()
@@ -1548,4 +1534,3 @@ namespace HaarForm
         }
     }
 }
-
