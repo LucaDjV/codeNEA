@@ -17,4 +17,4 @@ C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\refint\Ha
 C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.pdb
 C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.genruntimeconfig.cache
 C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\ref\HaarForm.dll
-C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.taskQueue.resources
+C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.Form1.resources

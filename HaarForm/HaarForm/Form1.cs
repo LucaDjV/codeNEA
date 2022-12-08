@@ -13,132 +13,6 @@ using HaarCascadeLib;
 
 namespace HaarForm
 {
-    //priority queue
-    //if is interrupt, insert at front, else insert at back
-    public class taskQueue
-    {
-        public static queueElement[] tQueue = new queueElement[100];
-        public static int size, FP, BP;
-
-
-        public taskQueue()
-        {
-            size = 0;
-            FP = 0;
-            BP = 0;
-        }
-
-        public void Enqueue(Task taskIn, bool interrupt)
-        {
-            if (interrupt)
-            {
-                if (size <= 100)
-                {
-                    if(FP == 0)
-                    {
-                        tQueue[99] = new queueElement(taskIn);
-                        FP = 99;
-                        size++;
-                    }
-                    else if (FP > BP)
-                    {
-                        FP--;
-                        tQueue[FP] = new queueElement(taskIn);
-                        size++;
-                    }
-                    else
-                    {
-                        FP++;
-                        tQueue[FP] = new queueElement(taskIn);
-                        size++;
-                    }
-                }
-                else
-                {
-                    throw new Exception("No more space in queue for task");
-                }
-            }
-            else
-            {
-                if(size <= 100)
-                {
-                    if(BP == 99)
-                    {
-                        BP = 0;
-                        tQueue[BP] = new queueElement(taskIn);
-                        size++;
-                    }
-                    else
-                    {
-                        BP++;
-                        tQueue[BP] = new queueElement(taskIn);
-                        size++;
-                    }
-                }
-                else
-                {
-                    throw new Exception("No more space in queue for task");
-                }
-            }
-        }
-
-        public static async void clearQueue()
-        {
-            int amtDequeued = 0;
-            Task[] inProgress = new Task[4];
-            while (size > 0)
-            {
-                if (FP == 99)
-                {
-                    inProgress[amtDequeued] = tQueue[FP].element;
-                    inProgress[amtDequeued].Start();
-                    amtDequeued++;
-                    FP = 0;
-                    size--;
-                }
-                else
-                {
-                    inProgress[amtDequeued] = tQueue[FP].element;
-                    inProgress[amtDequeued].Start();
-                    amtDequeued++;
-                    FP++;
-                    size--;
-                }
-                if(amtDequeued == 4)
-                {
-                    for(int i = 0; i < 4; i++)
-                    {
-                        await inProgress[i];
-                    }
-                }
-            }
-        }
-
-        public class queueElement
-        {
-            public Task element
-            {
-                get { return element; }
-                set
-                {
-                    element = value;
-                    if (taskQueue.size == 0)
-                    {
-                        Task t = new Task(() => taskQueue.clearQueue());
-                        t.Start();
-                    }
-            }
-            }
-
-            public queueElement(Task t)
-            {
-                element = t;
-            }
-        }
-
-    }
-
-    
     public partial class Form1 : Form
     {
         public Image[] Images;
@@ -153,7 +27,7 @@ namespace HaarForm
         public static bool trained;
 
 
-        public static taskQueue tasks = new taskQueue();
+        //public static taskQueue tasks = new taskQueue();
 
         /// <summary>
         /// Something wrong with gini coefficients- check finishedFeatures[0]
@@ -179,14 +53,14 @@ namespace HaarForm
                     newest = int.Parse(line);
                 }
             }
-            foreach (string path in Directory.EnumerateFiles("C:\\Users\\lucaD\\OneDrive\\Pictures\\data\\TrainingImages"))
+            foreach (string path in Directory.EnumerateFiles("C:\\Users\\lucaD\\Desktop\\pics\\train\\face"))
             {
                 Bitmap image = new Bitmap(path);
                 images.Add(image);
                 faces.Add(true);
             }
             
-            foreach (string path in Directory.EnumerateFiles("C:\\Users\\lucaD\\OneDrive\\Pictures\\data\\TrainingImagesNon-Face"))
+            foreach (string path in Directory.EnumerateFiles("C:\\Users\\lucaD\\Desktop\\pics\\train\\nonface"))
             {
                 Bitmap image = new Bitmap(path);
                 images.Add(image);
@@ -199,7 +73,7 @@ namespace HaarForm
             Console.WriteLine("images Length = " + Images.Length);
             integralImages = new double[Images.Length][,];
             List<Image> ImagesTemp = new List<Image>();
-            foreach (string path in Directory.EnumerateFiles("C:\\Users\\lucaD\\OneDrive\\Pictures\\data\\TestImage"))
+            foreach (string path in Directory.EnumerateFiles("C:\\Users\\lucaD\\Desktop\\pics\\test"))
             {
                 Bitmap image = new Bitmap(path);
                 ImagesTemp.Add(image);
@@ -271,10 +145,7 @@ namespace HaarForm
                 haarCascade = cascade;
 
                 //another function to make it easy to add async later
-                Task train = new Task(() => startTraining());
-                tasks.Enqueue(train, false);
-
-                SaveState();
+                startTraining();
 
                 trained = true;
                 Console.WriteLine("training finished");
@@ -321,8 +192,7 @@ namespace HaarForm
 
         private void Loader_Click_1(object sender, EventArgs e)
         {
-            Task t = new Task(() => loading());
-            tasks.Enqueue(t, true);
+            loading();
         }
 
         private void loading()
@@ -570,6 +440,8 @@ namespace HaarForm
                     path += "2.txt";
                 }
 
+                HaarCascadeV2 cascade = new HaarCascadeV2(methods);
+                haarCascade = cascade;
                 using (StreamReader reader = new StreamReader(path))
                 {
                     string head = "";
@@ -595,62 +467,7 @@ namespace HaarForm
                     }
 
                 }
-                /*string path = "saves\\save2.txt";
-                bool save2 = true;
-                bool load1 = false;
-                using (StreamReader reader = new StreamReader(path))
-                {
-                    string head = "";
-                    head += reader.ReadLine();
-                    if (head == "1")
-                    {
-                        for (int i = 0; i < HaarCascadeV2.finishedFeatures.Length; i++)
-                        {
-                            string curr = "";
-                            curr += reader.ReadLine();
-                            int threshold = int.Parse(curr);
-                            HaarCascadeV2.finishedFeatures[i].threshold = threshold;
-                            curr = "";
-                            curr += reader.ReadLine();
-                            int vote = int.Parse(curr);
-                            HaarCascadeV2.finishedFeatures[i].vote = vote;
-                        }
-                    }
-                    else
-                    {
-                        save2 = false;
-                        load1 = true;
-                    }
 
-                }
-                if (!save2 || load1)
-                {
-                    path = "saves\\save1.txt";
-                    using (StreamReader reader = new StreamReader(path))
-                    {
-                        string head = "";
-                        head += reader.ReadLine();
-                        if (head == "1")
-                        {
-                            for (int i = 0; i < HaarCascadeV2.finishedFeatures.Length; i++)
-                            {
-                                string curr = "";
-                                curr += reader.ReadLine();
-                                int threshold = int.Parse(curr);
-                                HaarCascadeV2.finishedFeatures[i].threshold = threshold;
-                                curr = "";
-                                curr += reader.ReadLine();
-                                int vote = int.Parse(curr);
-                                HaarCascadeV2.finishedFeatures[i].vote = vote;
-                            }
-                        }
-                        else
-                        {
-                            Console.WriteLine("no valid saves");
-                            success = false;
-                        }
-                    }
-                }*/
             }
             else
             {
@@ -1233,28 +1050,6 @@ namespace HaarForm
                                 neg += (double)Math.Round(finishedFeatures[i].vote, 10);
                             }
                         }
-                        /*if (finishedFeatures[i].vote >= 0)
-                        {
-                            if (temp >= finishedFeatures[i].threshold)
-                            {
-                                pos += (double)Math.Round(finishedFeatures[i].vote, 10);
-                            }
-                            else
-                            {
-                                neg += (double)Math.Round(finishedFeatures[i].vote, 10);
-                            }
-                        }
-                        else
-                        {
-                            if (temp <= finishedFeatures[i].threshold)
-                            {
-                                pos += (double)Math.Round(finishedFeatures[i].vote, 10);
-                            }
-                            else
-                            {
-                                neg += (double)Math.Round(finishedFeatures[i].vote, 10);
-                            }
-                        }*/
 
                     }
 
@@ -1545,6 +1340,11 @@ namespace HaarForm
         private void richTextBox2_TextChanged(object sender, EventArgs e)
         {
 
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            pictureBox.Image = methods.doBicubic((Bitmap)pictureBox.Image, 2);
         }
     }
 }
