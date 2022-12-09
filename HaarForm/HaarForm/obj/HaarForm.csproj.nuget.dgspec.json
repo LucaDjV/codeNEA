@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\lucaD\\source\\repos\\HaarForm\\HaarForm\\HaarForm.csproj": {}
+    "C:\\Users\\lucaD\\Desktop\\programming\\GitHubRepos\\codeNEA\\HaarForm\\HaarForm\\HaarForm.csproj": {}
   },
   "projects": {
-    "C:\\Users\\lucaD\\source\\repos\\HaarForm\\HaarForm\\HaarForm.csproj": {
+    "C:\\Users\\lucaD\\Desktop\\programming\\GitHubRepos\\codeNEA\\HaarForm\\HaarForm\\HaarForm.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\lucaD\\source\\repos\\HaarForm\\HaarForm\\HaarForm.csproj",
+        "projectUniqueName": "C:\\Users\\lucaD\\Desktop\\programming\\GitHubRepos\\codeNEA\\HaarForm\\HaarForm\\HaarForm.csproj",
         "projectName": "HaarForm",
-        "projectPath": "C:\\Users\\lucaD\\source\\repos\\HaarForm\\HaarForm\\HaarForm.csproj",
+        "projectPath": "C:\\Users\\lucaD\\Desktop\\programming\\GitHubRepos\\codeNEA\\HaarForm\\HaarForm\\HaarForm.csproj",
         "packagesPath": "C:\\Users\\lucaD\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\lucaD\\source\\repos\\HaarForm\\HaarForm\\obj\\",
+        "outputPath": "C:\\Users\\lucaD\\Desktop\\programming\\GitHubRepos\\codeNEA\\HaarForm\\HaarForm\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\lucaD\\AppData\\Roaming\\NuGet\\NuGet.Config",

@@ -18,3 +18,13 @@ C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.
 C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.genruntimeconfig.cache
 C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\ref\HaarForm.dll
 C:\Users\lucaD\source\repos\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.Form1.resources
+C:\Users\lucaD\Desktop\programming\GitHubRepos\codeNEA\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.csproj.AssemblyReference.cache
+C:\Users\lucaD\Desktop\programming\GitHubRepos\codeNEA\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.Form1.resources
+C:\Users\lucaD\Desktop\programming\GitHubRepos\codeNEA\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.csproj.GenerateResource.cache
+C:\Users\lucaD\Desktop\programming\GitHubRepos\codeNEA\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\lucaD\Desktop\programming\GitHubRepos\codeNEA\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.AssemblyInfoInputs.cache
+C:\Users\lucaD\Desktop\programming\GitHubRepos\codeNEA\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.AssemblyInfo.cs
+C:\Users\lucaD\Desktop\programming\GitHubRepos\codeNEA\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.csproj.CoreCompileInputs.cache
+C:\Users\lucaD\Desktop\programming\GitHubRepos\codeNEA\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.dll
+C:\Users\lucaD\Desktop\programming\GitHubRepos\codeNEA\HaarForm\HaarForm\obj\Debug\net6.0-windows\refint\HaarForm.dll
+C:\Users\lucaD\Desktop\programming\GitHubRepos\codeNEA\HaarForm\HaarForm\obj\Debug\net6.0-windows\HaarForm.pdb
