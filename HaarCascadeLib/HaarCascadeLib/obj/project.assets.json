@@ -13,11 +13,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\lucaD\\source\\repos\\HaarCascadeLib\\HaarCascadeLib\\HaarCascadeLib.csproj",
+      "projectUniqueName": "C:\\Users\\lucaD\\Desktop\\programming\\GitHubRepos\\codeNEA\\HaarCascadeLib\\HaarCascadeLib\\HaarCascadeLib.csproj",
       "projectName": "HaarCascadeLib",
-      "projectPath": "C:\\Users\\lucaD\\source\\repos\\HaarCascadeLib\\HaarCascadeLib\\HaarCascadeLib.csproj",
+      "projectPath": "C:\\Users\\lucaD\\Desktop\\programming\\GitHubRepos\\codeNEA\\HaarCascadeLib\\HaarCascadeLib\\HaarCascadeLib.csproj",
       "packagesPath": "C:\\Users\\lucaD\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\lucaD\\source\\repos\\HaarCascadeLib\\HaarCascadeLib\\obj\\",
+      "outputPath": "C:\\Users\\lucaD\\Desktop\\programming\\GitHubRepos\\codeNEA\\HaarCascadeLib\\HaarCascadeLib\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\lucaD\\AppData\\Roaming\\NuGet\\NuGet.Config",
