@@ -526,8 +526,8 @@ namespace HaarForm
 
         public class HaarCascadeV2
         {
-            int size = 46;
-            public static int amtFeatures = 13;
+            int size = 256;
+            public static int amtFeatures = 9;
             public static HaarFeatureV2[] features;
             public static HaarFeatureV2[] finishedFeatures;
 
@@ -539,25 +539,15 @@ namespace HaarForm
             public HaarCascadeV2(bool[] isFace, imageProcessorClass methods)
             {
                 features = new HaarFeatureV2[amtFeatures];
-                features[0] = new Type1(2, 9, 9, 9, 2, 23, 9, 23, true); //        rightear
-
-
-                features[1] = new Type2(10, 9, 35, 9, 10, 17, 35, 17, true); //     eyes
-                features[11] = new Type2(10, 7, 35, 7, 10, 15, 35, 15, true); //     eyes2
-                features[12] = new Type2(10, 5, 35, 5, 10, 13, 35, 13, true); //     eyes
-
-
-
-                features[2] = new Type1(36, 9, 43, 9, 36, 23, 43, 23, true); //     leftear
-                features[3] = new Type1(17, 18, 24, 18, 17, 25, 24, 25, false); //  leftSectNose
-                features[4] = new Type1(21, 18, 28, 18, 21, 25, 28, 25, true); //   rightSectNose
-                features[5] = new Type2(14, 28, 31, 29, 14, 36, 31, 36, false); //  mouth
-                features[6] = new Type2(10, 19, 16, 19, 10, 24, 16, 24, true);  //  cheekboneLeft
-                features[7] = new Type2(29, 19, 35, 19, 29, 24, 35, 24, true);  //  cheekboneright
-                features[8] = new Type2(15, 37, 30, 37, 15, 44, 30, 44, true);  //  chin
-                features[9] = new Type1(6, 25, 11, 25, 6, 30, 11, 30, false); //    leftEdge
-                features[10] = new Type1(34, 25, 39, 25, 34, 30, 39, 30, true); //    rightEdge
-
+                features[1] = new Type2(96, 88, 161, 88, 96, 110, 161, 110, true); //     eyes
+                features[2] = new Type1(71, 78, 96, 78, 71, 133, 96, 133, true); //      leftear
+                features[3] = new Type1(112, 102, 144, 102, 112, 130, 144, 130, false); //  Nose
+                features[4] = new Type2(107, 133, 149, 133, 107, 151, 149, 151, false); //  mouth
+                features[5] = new Type1(84, 121, 107, 121, 84, 142, 107, 142, true);  //  cheekboneLeft
+                features[6] = new Type1(149, 121, 173, 121, 149, 142, 173, 142, true);  //  cheekboneright
+                features[7] = new Type2(116, 151, 140, 151, 116, 165, 140, 165, true);  //  chin
+                features[8] = new Type2(99, 76, 125, 76, 99, 86, 125, 86, true); //    leftbrow
+                features[9] = new Type2(131, 76, 158, 76, 131, 86, 158, 86, true); //    rightbrow
 
                 finishedFeatures = new HaarFeatureV2[amtFeatures];
             }
@@ -565,21 +555,15 @@ namespace HaarForm
             public HaarCascadeV2(imageProcessorClass methods)
             {
                 finishedFeatures = new HaarFeatureV2[amtFeatures];
-                finishedFeatures[0] = new Type1(2, 9, 9, 9, 2, 23, 9, 23, true); //        rightear
-                
-                finishedFeatures[1] = new Type2(10, 9, 35, 9, 10, 17, 35, 17, true); //     eyes
-                finishedFeatures[11] = new Type2(10, 7, 35, 7, 10, 15, 35, 15, true); //     eyes2
-                finishedFeatures[12] = new Type2(10, 5, 35, 5, 10, 13, 35, 13, true); //     eyes
-                
-                finishedFeatures[2] = new Type1(36, 9, 43, 9, 36, 23, 43, 23, true); //     leftear
-                finishedFeatures[3] = new Type1(17, 18, 24, 18, 17, 25, 24, 25, false); //  leftSectNose
-                finishedFeatures[4] = new Type1(21, 18, 28, 18, 21, 25, 28, 25, true); //   rightSectNose
-                finishedFeatures[5] = new Type2(14, 28, 31, 29, 14, 36, 31, 36, false); //  mouth
-                finishedFeatures[6] = new Type2(10, 19, 16, 19, 10, 24, 16, 24, true);  //  cheekboneLeft
-                finishedFeatures[7] = new Type2(29, 19, 35, 19, 29, 24, 35, 24, true);  //  cheekboneright
-                finishedFeatures[8] = new Type2(15, 37, 30, 37, 15, 44, 30, 44, true);  //  chin
-                finishedFeatures[9] = new Type1(6, 25, 11, 25, 6, 30, 11, 30, false); //    leftEdge
-                finishedFeatures[10] = new Type1(34, 25, 39, 25, 34, 30, 39, 30, true); //    rightEdge
+                finishedFeatures[1] = new Type2(96, 88, 161, 88, 96, 110, 161, 110, true); //     eyes
+                finishedFeatures[2] = new Type1(71, 78, 96, 78, 71, 133, 96, 133, true); //      leftear
+                finishedFeatures[3] = new Type1(112, 102, 144, 102, 112, 130, 144, 130, false); //  Nose
+                finishedFeatures[4] = new Type2(107, 133, 149, 133, 107, 151, 149, 151, false); //  mouth
+                finishedFeatures[5] = new Type1(84, 121, 107, 121, 84, 142, 107, 142, true);  //  cheekboneLeft
+                finishedFeatures[6] = new Type1(149, 121, 173, 121, 149, 142, 173, 142, true);  //  cheekboneright
+                finishedFeatures[7] = new Type2(116, 151, 140, 151, 116, 165, 140, 165, true);  //  chin
+                finishedFeatures[8] = new Type2(99, 76, 125, 76, 99, 86, 125, 86, true); //    leftbrow
+                finishedFeatures[9] = new Type2(131, 76, 158, 76, 131, 86, 158, 86, true); //    rightbrow
             }
 
             public bool[] Test(double[][,] intImgs)
